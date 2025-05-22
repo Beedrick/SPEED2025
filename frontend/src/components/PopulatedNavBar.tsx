@@ -10,6 +10,9 @@ const PopulatedNavBar = () => {
             <NavItem route="/" end>
                 Home
             </NavItem>
+            <NavItem route="/search/search">
+                Search
+            </NavItem>
             <NavItem dropdown route="/articles">
                 Articles <IoMdArrowDropdown />
                 <NavDropdown>
@@ -17,6 +20,8 @@ const PopulatedNavBar = () => {
                     <NavItem route="/articles/new">Submit new</NavItem>
                 </NavDropdown>
             </NavItem>
+
+
         </NavBar>
     );
 };
