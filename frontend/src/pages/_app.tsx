@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import PopulatedNavBar from "../components/PopulatedNavBar";
 import { clear } from "console";
-
+import ModerationPage from './articles/moderate';
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
     return (
         <SessionProvider session={session}>
@@ -12,5 +12,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
         </SessionProvider>
     );
 }
+
+
 
 export default MyApp;
