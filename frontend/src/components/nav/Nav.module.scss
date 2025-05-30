@@ -1,0 +1,62 @@
+/* Nav.module.scss */
+.navbar {
+    display: flex;
+    position: relative;
+    top: 0;
+    flex-direction: row;
+    width: 100%;
+    background-color: #00008b;
+    align-items: center;
+    color: #f0f8ff;
+    font-size: 1.5em;
+    font-weight: bold;
+    transition: top .5s;
+    height: fit-content;
+}
+
+.hide {
+    top: -3em;
+}
+
+.navitem,
+.clickable {
+    position: relative;
+    padding: 1em;
+    width: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: default;
+    white-space: nowrap;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    backdrop-filter: brightness(50%);
+}
+
+.dropdown_container {
+    visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #00008b;
+    position: absolute;
+    top: 100%;
+    right: 0;
+}
+
+.dropdown:hover {
+    cursor: pointer;
+    backdrop-filter: brightness(50%);
+}
+
+.dropdown:hover .dropdown_container {
+    visibility: visible;
+}
+
+.end {
+    margin-left: auto;
+}
