@@ -31,10 +31,7 @@ body {
   }
 }
 
-.collapse.show {
-  visibility: visible;
-}
-
+/* Layout & Section Wrappers */
 .CreateBook,
 .ShowBookDetails,
 .UpdateBookInfo,
@@ -45,45 +42,84 @@ body {
 }
 
 .ShowBookList {
-  height: 100%;
   width: 100%;
+  height: 100%;
   min-width: 100px;
 }
 
-/* BookList Styles */
+/* Grid-based Book List */
 .list {
   display: grid;
-  margin: 20px 0 50px 0;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 1fr;
   grid-gap: 2em;
+  margin: 20px 0 50px 0;
 }
 
+/* Book Card */
 .card-container {
   width: 250px;
-  border: 1px solid rgba(0, 0, 0, 0.125);
   margin: 0 auto;
+  border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 5px;
   overflow: hidden;
 }
 
+/* Card Description */
 .desc {
   height: 130px;
   padding: 10px;
+
+  h2 {
+    font-size: 1em;
+    font-weight: 400;
+  }
+
+  h3,
+  p {
+    font-weight: 300;
+  }
+
+  h3 {
+    color: #6c757d;
+    font-size: 1em;
+    padding: 10px 0;
+  }
 }
 
-.desc h2 {
-  font-size: 1em;
-  font-weight: 400;
+/* Form Layout Utilities */
+.form {
+  display: flex;
+  flex-direction: column;
+  max-width: 30em;
 }
 
-.desc h3,
-.desc p {
-  font-weight: 300;
+.formItem {
+  padding: 1em;
+  margin: 1em 0;
+  flex-grow: 1;
 }
 
-.desc h3 {
-  color: #6c757d;
-  font-size: 1em;
-  padding: 10px 0;
+.formTextArea {
+  @extend .formItem;
+  min-height: 8em;
+}
+
+.arrayItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: stretch;
+}
+
+.buttonItem {
+  width: 3rem;
+  height: 3rem;
+  flex-grow: 0;
+  font-size: 1.5em;
+}
+
+/* Bootstrap compatibility */
+.collapse.show {
+  visibility: visible;
 }
