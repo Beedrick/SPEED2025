@@ -47,7 +47,7 @@ const CreateBookComponent = () => {
           <div className="col-md-8 m-auto">
             <br />
             <Link href="/" className="btn btn-outline-warning float-left">
-              Show Book List
+              Show Article Entries
             </Link>
           </div>
           <div className="col-md-10 m-auto">
