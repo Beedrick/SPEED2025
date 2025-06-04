@@ -20,15 +20,23 @@ const BookCard = ({ book }: IProp) => {
   return (
     <div className="card-container" onClick={onClick} style={{ cursor: "pointer" }}>
       <img
-        src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d"
+        src="https://d4804za1f1gw.cloudfront.net/wp-content/uploads/sites/50/2018/11/hero.jpg"
         alt="Books"
         height={200}
         className="img-fluid"
       />
       <div className="desc mt-2">
         <h2>{book.title}</h2>
-        <h3>{book.author}</h3>
-        <p>{book.description}</p>
+        <h3>
+          {book.authors
+          .map((author) => {
+            const parts = author.trim().split(" ");
+            const firstInitial = parts[0]?.charAt(0).toUpperCase() + ".";
+            const lastName = parts.slice(1).join(" ");
+            return `${firstInitial} ${lastName}`;
+          })
+          .join(", ")}
+        </h3>
       </div>
     </div>
   );
