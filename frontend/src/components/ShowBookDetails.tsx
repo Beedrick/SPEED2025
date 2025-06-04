@@ -32,28 +32,38 @@ function ShowBookDetails() {
           </tr>
           <tr>
             <th scope='row'>2</th>
-            <td>Author</td>
-            <td>{book.author}</td>
+            <td>Authors</td>
+            <td>{Array.isArray(book.authors) ? book.authors.join(', ') : book.authors}</td>
           </tr>
           <tr>
             <th scope='row'>3</th>
-            <td>ISBN</td>
-            <td>{book.isbn}</td>
+            <td>Journal/Conference</td>
+            <td>{book.journal_conference}</td>
           </tr>
           <tr>
             <th scope='row'>4</th>
-            <td>Publisher</td>
-            <td>{book.publisher}</td>
+            <td>Year of Publication</td>
+            <td>{book.year_of_publication}</td>
           </tr>
           <tr>
             <th scope='row'>5</th>
-            <td>Published Date</td>
-            <td>{book.published_date?.toString()}</td>
+            <td>Volume</td>
+            <td>{book.volume || 'N/A'}</td>
           </tr>
           <tr>
             <th scope='row'>6</th>
-            <td>Description</td>
-            <td>{book.description}</td>
+            <td>Number</td>
+            <td>{book.number || 'N/A'}</td>
+          </tr>
+          <tr>
+            <th scope='row'>7</th>
+            <td>Pages</td>
+            <td>{book.pages || 'N/A'}</td>
+          </tr>
+          <tr>
+            <th scope='row'>8</th>
+            <td>DOI</td>
+            <td>{book.doi}</td>
           </tr>
         </tbody>
       </table>
@@ -67,12 +77,12 @@ function ShowBookDetails() {
           <div className='col-md-10 m-auto'>
             <br />
             <Link href='/' className='btn btn-outline-warning float-left'>
-              Show Book List
+              Show Article List
             </Link>
           </div>
           <div className='col-md-8 m-auto'>
-            <h1 className='display-4 text-center'>Book's Record</h1>
-            <p className='lead text-center'>View Book's Info</p>
+            <h1 className='display-4 text-center'>Article's Record</h1>
+            <p className='lead text-center'>View Article's Info</p>
             <hr />
             <br />
           </div>
@@ -83,7 +93,7 @@ function ShowBookDetails() {
               className='btn btn-outline-danger btn-lg btn-block'
               onClick={() => onDeleteClick(book._id || '')}
             >
-              Delete Book
+              Delete Article
             </button>
           </div>
           <div className='col-md-6 m-auto'>
@@ -91,7 +101,7 @@ function ShowBookDetails() {
               href={`/edit-book/${book._id}`}
               className='btn btn-outline-info btn-lg btn-block'
             >
-              Edit Book
+              Edit Article
             </Link>
           </div>
         </div>

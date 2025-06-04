@@ -16,11 +16,17 @@ function UpdateBookInfo() {
   }, [id]);
 
   const inputOnChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setBook({ ...book, [event.target.name]: event.target.value });
-  };
-
-  const textAreaOnChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setBook({ ...book, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    
+    if (name === 'authors') {
+      // Split comma-separated authors into array
+      setBook({ ...book, [name]: value.split(',').map(author => author.trim()) });
+    } else if (name === 'year_of_publication') {
+      // Convert to number
+      setBook({ ...book, [name]: parseInt(value) || 0 });
+    } else {
+      setBook({ ...book, [name]: value });
+    }
   };
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -43,12 +49,12 @@ function UpdateBookInfo() {
           <div className='col-md-8 m-auto'>
             <br />
             <Link href='/' className='btn btn-outline-warning float-left'>
-              Show Book List
+              Show Article List
             </Link>
           </div>
           <div className='col-md-8 m-auto'>
-            <h1 className='display-4 text-center'>Edit Book</h1>
-            <p className='lead text-center'>Update Book's Info</p>
+            <h1 className='display-4 text-center'>Edit Article</h1>
+            <p className='lead text-center'>Update Article's Info</p>
           </div>
         </div>
 
@@ -58,7 +64,7 @@ function UpdateBookInfo() {
               <label htmlFor='title'>Title</label>
               <input
                 type='text'
-                placeholder='Title of the Book'
+                placeholder='Title of the Article'
                 name='title'
                 className='form-control'
                 value={book.title}
@@ -68,71 +74,98 @@ function UpdateBookInfo() {
             <br />
 
             <div className='form-group'>
-              <label htmlFor='isbn'>ISBN</label>
+              <label htmlFor='authors'>Authors</label>
               <input
                 type='text'
-                placeholder='ISBN'
-                name='isbn'
+                placeholder='Authors (comma-separated)'
+                name='authors'
                 className='form-control'
-                value={book.isbn}
+                value={Array.isArray(book.authors) ? book.authors.join(', ') : ''}
                 onChange={inputOnChange}
               />
             </div>
             <br />
 
             <div className='form-group'>
-              <label htmlFor='author'>Author</label>
+              <label htmlFor='journal_conference'>Journal/Conference</label>
               <input
                 type='text'
-                placeholder='Author'
-                name='author'
+                placeholder='Journal or Conference Name'
+                name='journal_conference'
                 className='form-control'
-                value={book.author}
+                value={book.journal_conference}
                 onChange={inputOnChange}
               />
             </div>
             <br />
 
             <div className='form-group'>
-              <label htmlFor='description'>Description</label>
-              <textarea
-                placeholder='Description of the Book'
-                name='description'
-                className='form-control'
-                value={book.description}
-                onChange={textAreaOnChange}
-              />
-            </div>
-            <br />
-
-            <div className='form-group'>
-              <label htmlFor='published_date'>Published Date</label>
+              <label htmlFor='year_of_publication'>Year of Publication</label>
               <input
-                type='text'
-                placeholder='Published Date'
-                name='published_date'
+                type='number'
+                placeholder='Year of Publication'
+                name='year_of_publication'
                 className='form-control'
-                value={book.published_date?.toString()}
+                value={book.year_of_publication || ''}
                 onChange={inputOnChange}
               />
             </div>
             <br />
 
             <div className='form-group'>
-              <label htmlFor='publisher'>Publisher</label>
+              <label htmlFor='volume'>Volume</label>
               <input
                 type='text'
-                placeholder='Publisher of the Book'
-                name='publisher'
+                placeholder='Volume (optional)'
+                name='volume'
                 className='form-control'
-                value={book.publisher}
+                value={book.volume || ''}
+                onChange={inputOnChange}
+              />
+            </div>
+            <br />
+
+            <div className='form-group'>
+              <label htmlFor='number'>Number</label>
+              <input
+                type='text'
+                placeholder='Number (optional)'
+                name='number'
+                className='form-control'
+                value={book.number || ''}
+                onChange={inputOnChange}
+              />
+            </div>
+            <br />
+
+            <div className='form-group'>
+              <label htmlFor='pages'>Pages</label>
+              <input
+                type='text'
+                placeholder='Pages (optional)'
+                name='pages'
+                className='form-control'
+                value={book.pages || ''}
+                onChange={inputOnChange}
+              />
+            </div>
+            <br />
+
+            <div className='form-group'>
+              <label htmlFor='doi'>DOI</label>
+              <input
+                type='text'
+                placeholder='DOI'
+                name='doi'
+                className='form-control'
+                value={book.doi}
                 onChange={inputOnChange}
               />
             </div>
             <br />
 
             <button type='submit' className='btn btn-outline-info btn-lg btn-block'>
-              Update Book
+              Update Article
             </button>
           </form>
         </div>

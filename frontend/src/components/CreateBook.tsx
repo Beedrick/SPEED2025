@@ -8,7 +8,17 @@ const CreateBookComponent = () => {
   const [book, setBook] = useState<Book>(DefaultEmptyBook);
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setBook({ ...book, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    
+    if (name === 'authors') {
+      // Split comma-separated authors into array
+      setBook({ ...book, [name]: value.split(',').map(author => author.trim()) });
+    } else if (name === 'year_of_publication') {
+      // Convert to number
+      setBook({ ...book, [name]: parseInt(value) || 0 });
+    } else {
+      setBook({ ...book, [name]: value });
+    }
   };
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -41,13 +51,13 @@ const CreateBookComponent = () => {
             </Link>
           </div>
           <div className="col-md-10 m-auto">
-            <h1 className="display-4 text-center">Add Book</h1>
-            <p className="lead text-center">Create new book</p>
+            <h1 className="display-4 text-center">Add Article</h1>
+            <p className="lead text-center">Submit new research article</p>
             <form noValidate onSubmit={onSubmit}>
               <div className="form-group">
                 <input
                   type="text"
-                  placeholder="Title of the Book"
+                  placeholder="Title of the Article"
                   name="title"
                   className="form-control"
                   value={book.title}
@@ -58,10 +68,10 @@ const CreateBookComponent = () => {
               <div className="form-group">
                 <input
                   type="text"
-                  placeholder="ISBN"
-                  name="isbn"
+                  placeholder="Authors (comma-separated)"
+                  name="authors"
                   className="form-control"
-                  value={book.isbn}
+                  value={Array.isArray(book.authors) ? book.authors.join(', ') : ''}
                   onChange={onChange}
                 />
               </div>
@@ -69,10 +79,21 @@ const CreateBookComponent = () => {
               <div className="form-group">
                 <input
                   type="text"
-                  placeholder="Author"
-                  name="author"
+                  placeholder="Journal or Conference Name"
+                  name="journal_conference"
                   className="form-control"
-                  value={book.author}
+                  value={book.journal_conference}
+                  onChange={onChange}
+                />
+              </div>
+              <br />
+              <div className="form-group">
+                <input
+                  type="number"
+                  placeholder="Year of Publication"
+                  name="year_of_publication"
+                  className="form-control"
+                  value={book.year_of_publication || ''}
                   onChange={onChange}
                 />
               </div>
@@ -80,21 +101,10 @@ const CreateBookComponent = () => {
               <div className="form-group">
                 <input
                   type="text"
-                  placeholder="Describe this book"
-                  name="description"
+                  placeholder="Volume (optional)"
+                  name="volume"
                   className="form-control"
-                  value={book.description}
-                  onChange={onChange}
-                />
-              </div>
-              <br />
-              <div className="form-group">
-                <input
-                  type="date"
-                  placeholder="published_date"
-                  name="published_date"
-                  className="form-control"
-                  value={book.published_date?.toString()}
+                  value={book.volume || ''}
                   onChange={onChange}
                 />
               </div>
@@ -102,10 +112,32 @@ const CreateBookComponent = () => {
               <div className="form-group">
                 <input
                   type="text"
-                  placeholder="Publisher of this Book"
-                  name="publisher"
+                  placeholder="Number (optional)"
+                  name="number"
                   className="form-control"
-                  value={book.publisher}
+                  value={book.number || ''}
+                  onChange={onChange}
+                />
+              </div>
+              <br />
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Pages (optional)"
+                  name="pages"
+                  className="form-control"
+                  value={book.pages || ''}
+                  onChange={onChange}
+                />
+              </div>
+              <br />
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="DOI"
+                  name="doi"
+                  className="form-control"
+                  value={book.doi}
                   onChange={onChange}
                 />
               </div>
