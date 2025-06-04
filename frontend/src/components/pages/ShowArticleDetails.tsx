@@ -1,59 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Book, DefaultEmptyBook } from './Book';
+import { Article, DefaultEmptyArticle } from '../utils/Article';
 
-function ShowBookDetails() {
-  const [book, setBook] = useState<Book>(DefaultEmptyBook);
+function ShowArticleDetails() {
+  const [article, setArticle] = useState<Article>(DefaultEmptyArticle);
   const id = useParams<{ id: string }>().id;
   const navigate = useRouter();
 
   useEffect(() => {
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/books/${id}`)
+    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/articles/${id}`)
       .then((res) => res.json())
-      .then((json) => setBook(json))
-      .catch((err) => console.log('Error from ShowBookDetails: ' + err));
+      .then((json) => setArticle(json))
+      .catch((err) => console.log('Error from ShowArticleDetails: ' + err));
   }, [id]);
 
   const onDeleteClick = (id: string) => {
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/books/${id}`, { method: 'DELETE' })
+    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/articles/${id}`, { method: 'DELETE' })
       .then(() => navigate.push('/'))
-      .catch((err) => console.log('Error from ShowBookDetails_deleteClick: ' + err));
+      .catch((err) => console.log('Error from ShowArticleDetails_deleteClick: ' + err));
   };
 
-  const BookItem = (
+  const ArticleItem = (
     <div>
       <table className='table table-hover table-dark table-striped table-bordered'>
         <tbody>
           <tr>
             <th scope='row'>1</th>
             <td>Title</td>
-            <td>{book.title}</td>
+            <td>{article.title}</td>
           </tr>
           <tr>
             <th scope='row'>2</th>
             <td>Author</td>
-            <td>{book.author}</td>
+            <td>{article.authors}</td>
           </tr>
           <tr>
             <th scope='row'>3</th>
-            <td>ISBN</td>
-            <td>{book.isbn}</td>
+            <td>Year</td>
+            <td>{article.year}</td>
           </tr>
           <tr>
             <th scope='row'>4</th>
-            <td>Publisher</td>
-            <td>{book.publisher}</td>
+            <td>DOI</td>
+            <td>{article.doi}</td>
           </tr>
           <tr>
             <th scope='row'>5</th>
-            <td>Published Date</td>
-            <td>{book.published_date?.toString()}</td>
+            <td>SE Practice</td>
+            <td>{article.practice}</td>
           </tr>
           <tr>
             <th scope='row'>6</th>
-            <td>Description</td>
-            <td>{book.description}</td>
+            <td>Claimed Benefit</td>
+            <td>{article.claim}</td>
           </tr>
         </tbody>
       </table>
@@ -61,37 +61,37 @@ function ShowBookDetails() {
   );
 
   return (
-    <div className='ShowBookDetails'>
+    <div className='ShowArticleDetails'>
       <div className='container'>
         <div className='row'>
           <div className='col-md-10 m-auto'>
             <br />
             <Link href='/' className='btn btn-outline-warning float-left'>
-              Show Book List
+              Show Article List
             </Link>
           </div>
           <div className='col-md-8 m-auto'>
-            <h1 className='display-4 text-center'>Book's Record</h1>
-            <p className='lead text-center'>View Book's Info</p>
+            <h1 className='display-4 text-center'>Article's Record</h1>
+            <p className='lead text-center'>View Article's Info</p>
             <hr />
             <br />
           </div>
-          <div className='col-md-10 m-auto'>{BookItem}</div>
+          <div className='col-md-10 m-auto'>{ArticleItem}</div>
           <div className='col-md-6 m-auto'>
             <button
               type='button'
               className='btn btn-outline-danger btn-lg btn-block'
-              onClick={() => onDeleteClick(book._id || '')}
+              onClick={() => onDeleteClick(article._id || '')}
             >
-              Delete Book
+              Delete Article
             </button>
           </div>
           <div className='col-md-6 m-auto'>
             <Link
-              href={`/edit-book/${book._id}`}
+              href={`/edit-article/${article._id}`}
               className='btn btn-outline-info btn-lg btn-block'
             >
-              Edit Book
+              Edit Article
             </Link>
           </div>
         </div>
@@ -100,4 +100,4 @@ function ShowBookDetails() {
   );
 }
 
-export default ShowBookDetails;
+export default ShowArticleDetails;
