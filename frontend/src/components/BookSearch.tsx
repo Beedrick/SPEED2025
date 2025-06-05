@@ -30,13 +30,7 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
   const [selectedClaim, setSelectedClaim] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      performSearch();
-    }, 300);
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, selectedPractice, selectedClaim]);
-
+  // Simple search function without useCallback to avoid dependency issues
   const performSearch = async (): Promise<void> => {
     setIsLoading(true);
     onLoadingChange?.(true);
@@ -44,14 +38,20 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
     try {
       const queryParams = new URLSearchParams();
       if (searchTerm.trim()) queryParams.append('q', searchTerm.trim());
-      if (selectedPractice) queryParams.append('practice', selectedPractice);
+      if (selectedPractice) queryParams.append('se_practice', selectedPractice);
       if (selectedClaim) queryParams.append('claim', selectedClaim);
 
+      // Always make the API call - your backend handles empty params correctly
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/books/search?${queryParams.toString()}`
       );
-      if (!response.ok) throw new Error('Search failed');
+      
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status} ${response.statusText}`);
+      }
+    
       const books: Book[] = await response.json();
+      console.log('Search results:', books);
       onSearchResults(books);
     } catch (err) {
       console.error('Search error:', err);
@@ -62,10 +62,28 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
     }
   };
 
+  // Use useEffect with direct dependencies instead of the function
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      performSearch();
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, selectedPractice, selectedClaim]); // Direct dependencies
+
   const handleClearSearch = (): void => {
     setSearchTerm('');
     setSelectedPractice('');
     setSelectedClaim('');
+  };
+
+  const handlePracticeChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    console.log('Practice changed to:', e.target.value);
+    setSelectedPractice(e.target.value);
+  };
+
+  const handleClaimChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    console.log('Claim changed to:', e.target.value);
+    setSelectedClaim(e.target.value);
   };
 
   return (
@@ -109,7 +127,7 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
           <select
             className="form-select"
             value={selectedPractice}
-            onChange={(e) => setSelectedPractice(e.target.value)}
+            onChange={handlePracticeChange}
           >
             <option value="">Filter by SE Practice</option>
             {sePracticeOptions.map((practice) => (
@@ -124,7 +142,7 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
           <select
             className="form-select"
             value={selectedClaim}
-            onChange={(e) => setSelectedClaim(e.target.value)}
+            onChange={handleClaimChange}
           >
             <option value="">Filter by Claim</option>
             {claimOptions.map((claim) => (

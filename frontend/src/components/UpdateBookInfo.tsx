@@ -197,9 +197,6 @@ function UpdateBookInfo() {
                   </div>
                 ))}
               </div>
-              <small className="form-text text-muted">
-                Selected: {book.se_practices?.join(", ") || "None"}
-              </small>
               {errors.se_practices && <div className="text-danger small mt-1">{errors.se_practices}</div>}
             </div>
             <br />
@@ -223,9 +220,6 @@ function UpdateBookInfo() {
                   </div>
                 ))}
               </div>
-              <small className="form-text text-muted">
-                Selected: {book.claims?.join(", ") || "None"}
-              </small>
               {errors.claims && <div className="text-danger small mt-1">{errors.claims}</div>}
             </div>
             <br />
