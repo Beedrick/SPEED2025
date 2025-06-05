@@ -45,23 +45,34 @@ function ShowBookDetails() {
             <td>Year of Publication</td>
             <td>{book.year_of_publication}</td>
           </tr>
+          {/* New rows for SE Practices and Claims */}
           <tr>
             <th scope='row'>5</th>
+            <td>SE Practices</td>
+            <td>{Array.isArray(book.se_practices) ? book.se_practices.join(', ') : 'N/A'}</td>
+          </tr>
+          <tr>
+            <th scope='row'>6</th>
+            <td>Claims</td>
+            <td>{Array.isArray(book.claims) ? book.claims.join(', ') : 'N/A'}</td>
+          </tr>
+          <tr>
+            <th scope='row'>7</th>
             <td>Volume</td>
             <td>{book.volume || 'N/A'}</td>
           </tr>
           <tr>
-            <th scope='row'>6</th>
+            <th scope='row'>8</th>
             <td>Number</td>
             <td>{book.number || 'N/A'}</td>
           </tr>
           <tr>
-            <th scope='row'>7</th>
+            <th scope='row'>9</th>
             <td>Pages</td>
             <td>{book.pages || 'N/A'}</td>
           </tr>
           <tr>
-            <th scope='row'>8</th>
+            <th scope='row'>10</th>
             <td>DOI</td>
             <td>{book.doi}</td>
           </tr>

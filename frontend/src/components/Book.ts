@@ -4,6 +4,8 @@ export type Book = {
     authors?: string[];
     journal_conference?: string;
     year_of_publication?: number;
+    se_practices: string[];
+    claims: string[];
     volume?: string;
     number?: string;
     pages?: string;
@@ -16,6 +18,8 @@ export const DefaultEmptyBook: Book = {
     authors: [],
     journal_conference: '',
     year_of_publication: undefined,
+    se_practices: [],
+    claims: [],
     volume: '',
     number: '',
     pages: '',

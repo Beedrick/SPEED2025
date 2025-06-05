@@ -1,62 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { Book } from "./Book";
+import { Book } from './Book';
 
 interface BookSearchProps {
   onSearchResults: (books: Book[]) => void;
   onLoadingChange?: (loading: boolean) => void;
 }
 
+// Finalized dropdown options
+const sePracticeOptions = [
+  'Test-Driven Development (TDD)',
+  'Code Reviews',
+  'Continuous Integration (CI)',
+  'Pair Programming',
+  'Automated Testing',
+  'Agile Planning',
+];
+
+const claimOptions = [
+  'Improves code quality',
+  'Reduces bugs',
+  'Speeds up development',
+  'Improves team communication',
+  'Increases developer productivity',
+];
+
 const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChange }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedPractice, setSelectedPractice] = useState<string>('');
+  const [selectedClaim, setSelectedClaim] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Debounce search to avoid too many API calls
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (searchTerm.trim() !== '') {
-        searchBooks(searchTerm);
-      } else {
-        // If search is empty, load all books
-        loadAllBooks();
-      }
-    }, 300); // 300ms delay
-
+      performSearch();
+    }, 300);
     return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  }, [searchTerm, selectedPractice, selectedClaim]);
 
-  const searchBooks = async (query: string): Promise<void> => {
+  const performSearch = async (): Promise<void> => {
     setIsLoading(true);
     onLoadingChange?.(true);
-    
-    try {
-      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/books/search?q=" + encodeURIComponent(query));
-      if (!response.ok) {
-        throw new Error('Search failed');
-      }
-      const books: Book[] = await response.json();
-      onSearchResults(books);
-    } catch (error) {
-      console.error('Search error:', error);
-      onSearchResults([]);
-    } finally {
-      setIsLoading(false);
-      onLoadingChange?.(false);
-    }
-  };
 
-  const loadAllBooks = async (): Promise<void> => {
-    setIsLoading(true);
-    onLoadingChange?.(true);
-    
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/books/`);
-      if (!response.ok) {
-        throw new Error('Failed to load books');
-      }
+      const queryParams = new URLSearchParams();
+      if (searchTerm.trim()) queryParams.append('q', searchTerm.trim());
+      if (selectedPractice) queryParams.append('practice', selectedPractice);
+      if (selectedClaim) queryParams.append('claim', selectedClaim);
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/books/search?${queryParams.toString()}`
+      );
+      if (!response.ok) throw new Error('Search failed');
       const books: Book[] = await response.json();
       onSearchResults(books);
-    } catch (error) {
-      console.error('Load error:', error);
+    } catch (err) {
+      console.error('Search error:', err);
       onSearchResults([]);
     } finally {
       setIsLoading(false);
@@ -66,11 +64,13 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
 
   const handleClearSearch = (): void => {
     setSearchTerm('');
+    setSelectedPractice('');
+    setSelectedClaim('');
   };
 
   return (
     <div className="search-container mb-4">
-      <div className="position-relative d-flex align-items-center">
+      <div className="mb-2 position-relative d-flex align-items-center">
         <input
           type="text"
           className="form-control form-control-lg"
@@ -83,7 +83,6 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
             border: '2px solid #e1e5e9',
           }}
         />
-        
         {searchTerm && (
           <button
             onClick={handleClearSearch}
@@ -104,7 +103,39 @@ const BookSearch: React.FC<BookSearchProps> = ({ onSearchResults, onLoadingChang
           </button>
         )}
       </div>
-      
+
+      <div className="row mb-2">
+        <div className="col-md-6 mb-2 mb-md-0">
+          <select
+            className="form-select"
+            value={selectedPractice}
+            onChange={(e) => setSelectedPractice(e.target.value)}
+          >
+            <option value="">Filter by SE Practice</option>
+            {sePracticeOptions.map((practice) => (
+              <option key={practice} value={practice}>
+                {practice}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="col-md-6">
+          <select
+            className="form-select"
+            value={selectedClaim}
+            onChange={(e) => setSelectedClaim(e.target.value)}
+          >
+            <option value="">Filter by Claim</option>
+            {claimOptions.map((claim) => (
+              <option key={claim} value={claim}>
+                {claim}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {isLoading && (
         <div className="mt-2 text-muted small d-flex align-items-center">
           <div className="spinner-border spinner-border-sm me-2" role="status">

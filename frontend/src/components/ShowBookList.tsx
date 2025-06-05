@@ -46,7 +46,7 @@ function ShowBookList() {
         <div className="row">
           <div className="col-md-12">
             <br />
-            <h2 className="display-4 text-left">SPEED</h2>
+            <h2 className="display-4 text-left">Software Practice Empirical Evidence Database</h2>
           </div>
           <div className="col-md-11">
             <Link href="/create-book" className="btn btn-outline-warning float-left">
