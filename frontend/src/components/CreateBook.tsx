@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Book, DefaultEmptyBook } from "./Book";
@@ -21,6 +21,21 @@ const CLAIMS_OPTIONS = [
   "Increases developer productivity",
 ];
 
+interface BibTexEntry {
+  id: string;
+  type: string;
+  title?: string;
+  author?: string;
+  year?: string;
+  journal?: string;
+  booktitle?: string;
+  volume?: string;
+  number?: string;
+  pages?: string;
+  doi?: string;
+  [key: string]: any;
+}
+
 const CreateBookComponent = () => {
   const navigate = useRouter();
   const [book, setBook] = useState<Book>({
@@ -34,6 +49,149 @@ const CreateBookComponent = () => {
   
   // Add errors state for validation
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+  // BibTeX upload states
+  const [inputMode, setInputMode] = useState<'manual' | 'bibtex'>('manual');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Simple BibTeX parser
+  const parseBibTeX = (content: string): BibTexEntry[] => {
+  const entries: BibTexEntry[] = [];
+  const entryRegex = /@(\w+)\s*\{\s*([^,]+)\s*,\s*([\s\S]*?)\n\s*\}/g;
+  let match;
+
+  while ((match = entryRegex.exec(content)) !== null) {
+    const [, type, id, fieldsStr] = match;
+    const entry: BibTexEntry = { id: id.trim(), type: type.toLowerCase() };
+
+    // Parse fields - updated regex to handle more field formats
+    const fieldRegex = /(\w+)\s*=\s*\{([^}]*)\}|(\w+)\s*=\s*"([^"]*)"|(\w+)\s*=\s*([^,\n}]+)/g;
+    let fieldMatch;
+
+    while ((fieldMatch = fieldRegex.exec(fieldsStr)) !== null) {
+      const fieldName = (fieldMatch[1] || fieldMatch[3] || fieldMatch[5] || '').toLowerCase();
+      const fieldValue = (fieldMatch[2] || fieldMatch[4] || fieldMatch[6] || '').trim();
+      
+      // Handle custom fields
+      if (fieldName === 'claims' || fieldName === 'se_practices') {
+        // Split comma-separated values and clean them up
+        entry[fieldName] = fieldValue.split(',').map(item => item.trim()).filter(item => item.length > 0);
+      } else if (fieldName === 'note') {
+        // Parse note field for embedded custom fields
+        entry[fieldName] = fieldValue;
+        
+        // Look for Claims: and SE Practices: in the note
+        const claimsMatch = fieldValue.match(/Claims:\s*([^;]+)/i);
+        const practicesMatch = fieldValue.match(/SE Practices:\s*([^;]+)/i);
+        
+        if (claimsMatch) {
+          entry.claims = claimsMatch[1].split(',').map(item => item.trim()).filter(item => item.length > 0);
+        }
+        
+        if (practicesMatch) {
+          entry.se_practices = practicesMatch[1].split(',').map(item => item.trim()).filter(item => item.length > 0);
+        }
+      } else {
+        entry[fieldName] = fieldValue;
+      }
+    }
+
+    entries.push(entry);
+  }
+
+  return entries;
+};
+
+  // Handle BibTeX file upload
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.bib')) {
+      setErrors({ ...errors, bibtex: 'Please upload a .bib file' });
+      return;
+    }
+
+    setUploadedFile(file);
+    setIsProcessing(true);
+    setErrors({ ...errors, bibtex: '' });
+
+    try {
+      const content = await file.text();
+      const entries = parseBibTeX(content);
+      
+      if (entries.length === 0) {
+        setErrors({ ...errors, bibtex: 'No valid BibTeX entries found in the file' });
+        return;
+      }
+
+      // Use the first entry to populate the form
+      const entry = entries[0];
+      
+      // Convert BibTeX entry to Book format
+      const populatedBook: Book = {
+        ...DefaultEmptyBook,
+        title: entry.title || '',
+        journal_conference: entry.journal || entry.booktitle || '',
+        year_of_publication: entry.year ? parseInt(entry.year) : undefined,
+        volume: entry.volume || '',
+        number: entry.number || '',
+        pages: entry.pages || '',
+        doi: entry.doi || '',
+        // Now properly handle the custom fields
+        se_practices: Array.isArray(entry.se_practices) ? entry.se_practices : [],
+        claims: Array.isArray(entry.claims) ? entry.claims : [],
+      };
+
+      // Handle authors
+      let authorsArray: string[] = [];
+      if (entry.author) {
+        authorsArray = entry.author.split(' and ').map(author => {
+          // Handle "Last, First" format and convert to "First Last"
+          if (author.includes(',')) {
+            const parts = author.split(',');
+            return `${parts[1].trim()} ${parts[0].trim()}`;
+          }
+          return author.trim();
+        });
+      }
+
+      setBook(populatedBook);
+      setAuthorsInput(authorsArray.join(', '));
+
+      // If multiple entries, show a message
+      if (entries.length > 1) {
+        console.log(`Found ${entries.length} entries. Using the first one: ${entry.title}`);
+      }
+
+    } catch (error) {
+      console.error('Error parsing BibTeX file:', error);
+      setErrors({ ...errors, bibtex: 'Error parsing BibTeX file. Please check the file format.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Clear uploaded file and reset form
+  const handleClearFile = () => {
+    setUploadedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setBook({ ...DefaultEmptyBook, se_practices: [], claims: [] });
+    setAuthorsInput('');
+    setErrors({});
+  };
+
+  // Handle input mode change
+  const handleModeChange = (mode: 'manual' | 'bibtex') => {
+    setInputMode(mode);
+    if (mode === 'manual') {
+      handleClearFile();
+    }
+  };
 
   // Add the checkbox handler function HERE (inside the component)
   const handleCheckboxChange = (
@@ -144,6 +302,10 @@ const CreateBookComponent = () => {
       setBook(DefaultEmptyBook);
       setAuthorsInput('');
       setErrors({});
+      setUploadedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       navigate.push("/");
     })
     .catch((err) => {
@@ -164,6 +326,82 @@ const CreateBookComponent = () => {
           <div className="col-md-10 m-auto">
             <h1 className="display-4 text-center">Add Article</h1>
             <p className="lead text-center">Submit new research article</p>
+
+            {/* Input Mode Toggle */}
+            <div className="mb-4">
+              <div className="btn-group w-100" role="group">
+                <input
+                  type="radio"
+                  className="btn-check"
+                  name="inputMode"
+                  id="manualMode"
+                  checked={inputMode === 'manual'}
+                  onChange={() => handleModeChange('manual')}
+                />
+                <label className="btn btn-outline-primary" htmlFor="manualMode">
+                  Manual Entry
+                </label>
+
+                <input
+                  type="radio"
+                  className="btn-check"
+                  name="inputMode"
+                  id="bibtexMode"
+                  checked={inputMode === 'bibtex'}
+                  onChange={() => handleModeChange('bibtex')}
+                />
+                <label className="btn btn-outline-primary" htmlFor="bibtexMode">
+                  Upload BibTeX File
+                </label>
+              </div>
+            </div>
+
+            {/* BibTeX Upload Section */}
+            {inputMode === 'bibtex' && (
+              <div className="mb-4 p-3 border rounded bg-light">
+                <h5>Upload BibTeX File</h5>
+                <div className="mb-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className={`form-control ${errors.bibtex ? 'is-invalid' : ''}`}
+                    accept=".bib"
+                    onChange={handleFileUpload}
+                  />
+                  <div className="form-text">
+                    Select a .bib file to automatically populate the form fields below.
+                  </div>
+                  {errors.bibtex && <div className="invalid-feedback">{errors.bibtex}</div>}
+                </div>
+
+                {uploadedFile && (
+                  <div className="alert alert-success d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>✓ File uploaded:</strong> {uploadedFile.name}
+                      <br />
+                      <small className="text-muted">Form fields have been populated. Please review and select SE Practices & Claims below.</small>
+                    </div>
+                    <button
+                      onClick={handleClearFile}
+                      className="btn btn-sm btn-outline-secondary"
+                      type="button"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+
+                {isProcessing && (
+                  <div className="text-center">
+                    <div className="spinner-border spinner-border-sm me-2" role="status">
+                      <span className="visually-hidden">Processing...</span>
+                    </div>
+                    <span>Processing BibTeX file...</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <form noValidate onSubmit={onSubmit}>
               {/* Title */}
               <div className="form-group">
@@ -235,9 +473,6 @@ const CreateBookComponent = () => {
                     </div>
                   ))}
                 </div>
-                <small className="form-text text-muted">
-                  Selected: {book.claims?.join(", ") || "None"}
-                </small>
                 {errors.claims && <div className="text-danger small mt-1">{errors.claims}</div>}
               </div>
               <br />
