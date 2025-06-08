@@ -71,9 +71,10 @@ export class BookService {
             return await this.findAll();
         }
 
-        // Combine all conditions with $and
+        // Combine all conditions with $and 
         const searchQuery = conditions.length === 1 ? conditions[0] : { $and: conditions };
 
+        
         return await this.bookModel.find(searchQuery).exec();
     }
 }
